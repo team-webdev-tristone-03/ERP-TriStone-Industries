@@ -1,3 +1,20 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+Allow: /student/login
+Allow: /staff/login
+Allow: /admin/login
+Allow: /forgot-password
+
+# Disallow private areas
+Disallow: /student/dashboard
+Disallow: /staff/dashboard
+Disallow: /admin/dashboard
+Disallow: /student/*
+Disallow: /staff/*
+Disallow: /admin/*
+
+# Sitemap
+Sitemap: https://erp-tristone.com/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1

@@ -1,6 +1,65 @@
 import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
+  typography: {
+    fontFamily: [
+      'Inter',
+      '-apple-system',
+      'BlinkMacSystemFont',
+      '"Segoe UI"',
+      'Roboto',
+      '"Helvetica Neue"',
+      'Arial',
+      'sans-serif',
+      '"Apple Color Emoji"',
+      '"Segoe UI Emoji"',
+      '"Segoe UI Symbol"'
+    ].join(','),
+    h1: {
+      fontWeight: 700,
+      letterSpacing: '-0.025em'
+    },
+    h2: {
+      fontWeight: 600,
+      letterSpacing: '-0.025em'
+    },
+    h3: {
+      fontWeight: 600,
+      letterSpacing: '-0.02em'
+    },
+    h4: {
+      fontWeight: 600,
+      letterSpacing: '-0.02em'
+    },
+    h5: {
+      fontWeight: 600,
+      letterSpacing: '-0.01em'
+    },
+    h6: {
+      fontWeight: 600,
+      letterSpacing: '-0.01em'
+    },
+    body1: {
+      fontWeight: 400,
+      letterSpacing: '-0.01em'
+    },
+    body2: {
+      fontWeight: 400,
+      letterSpacing: '-0.01em'
+    },
+    button: {
+      fontWeight: 500,
+      letterSpacing: '0.02em'
+    },
+    caption: {
+      fontWeight: 400,
+      letterSpacing: '0.02em'
+    },
+    overline: {
+      fontWeight: 500,
+      letterSpacing: '0.08em'
+    }
+  },
   palette: {
     primary: {
       main: '#3B86D1', // Blue - Top bar, main nav, active tab
