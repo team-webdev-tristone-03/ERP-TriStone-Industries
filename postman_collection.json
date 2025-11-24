@@ -1,0 +1,565 @@
+{
+  "info": {
+    "name": "ERP System API",
+    "description": "Complete API collection for ERP System with Student, Staff, and Admin endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Student Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student_demo@erp.com\",\n  \"password\": \"student123\",\n  \"role\": \"student\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Staff Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"staff_demo@erp.com\",\n  \"password\": \"staff123\",\n  \"role\": \"staff\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Admin Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin_demo@erp.com\",\n  \"password\": \"admin123\",\n  \"role\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student_demo@erp.com\",\n  \"role\": \"student\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "forgot-password"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Student APIs",
+      "item": [
+        {
+          "name": "Get Student Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/student/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["student", "dashboard"]
+            }
+          }
+        },
+        {
+          "name": "Get Student Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/student/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["student", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Get Student Attendance",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/student/attendance?month=1&year=2024",
+              "host": ["{{baseUrl}}"],
+              "path": ["student", "attendance"],
+              "query": [
+                {
+                  "key": "month",
+                  "value": "1"
+                },
+                {
+                  "key": "year",
+                  "value": "2024"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Student Marks",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/student/marks",
+              "host": ["{{baseUrl}}"],
+              "path": ["student", "marks"]
+            }
+          }
+        },
+        {
+          "name": "Get Student Fees",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/student/fees",
+              "host": ["{{baseUrl}}"],
+              "path": ["student", "fees"]
+            }
+          }
+        },
+        {
+          "name": "Get Student Timetable",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/student/timetable",
+              "host": ["{{baseUrl}}"],
+              "path": ["student", "timetable"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Staff APIs",
+      "item": [
+        {
+          "name": "Get Staff Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/staff/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["staff", "dashboard"]
+            }
+          }
+        },
+        {
+          "name": "Get Staff Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/staff/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["staff", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Get Staff Classes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/staff/classes",
+              "host": ["{{baseUrl}}"],
+              "path": ["staff", "classes"]
+            }
+          }
+        },
+        {
+          "name": "Mark Student Attendance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": \"STU001\",\n  \"date\": \"2024-01-15\",\n  \"status\": \"present\",\n  \"subject\": \"Mathematics\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/staff/attendance",
+              "host": ["{{baseUrl}}"],
+              "path": ["staff", "attendance"]
+            }
+          }
+        },
+        {
+          "name": "Add Student Marks",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": \"STU001\",\n  \"subject\": \"Mathematics\",\n  \"examType\": \"Mid-term\",\n  \"marks\": 85,\n  \"maxMarks\": 100\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/staff/marks",
+              "host": ["{{baseUrl}}"],
+              "path": ["staff", "marks"]
+            }
+          }
+        },
+        {
+          "name": "Get Students by Class",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/staff/students?class=10th&section=A",
+              "host": ["{{baseUrl}}"],
+              "path": ["staff", "students"],
+              "query": [
+                {
+                  "key": "class",
+                  "value": "10th"
+                },
+                {
+                  "key": "section",
+                  "value": "A"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin APIs",
+      "item": [
+        {
+          "name": "Get Admin Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "dashboard"]
+            }
+          }
+        },
+        {
+          "name": "Get All Students",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/students?page=1&limit=10&search=",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "students"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create New Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newstudent@example.com\",\n  \"password\": \"password123\",\n  \"profile\": {\n    \"firstName\": \"New\",\n    \"lastName\": \"Student\",\n    \"phone\": \"1234567890\"\n  },\n  \"studentData\": {\n    \"studentId\": \"STU002\",\n    \"class\": \"10th\",\n    \"section\": \"B\",\n    \"rollNumber\": \"002\",\n    \"admissionDate\": \"2024-01-15\",\n    \"academic\": {\n      \"course\": \"Science\",\n      \"department\": \"Physics\",\n      \"year\": \"2023-24\",\n      \"semester\": \"1\"\n    },\n    \"guardian\": {\n      \"name\": \"Guardian Name\",\n      \"phone\": \"0987654321\",\n      \"email\": \"guardian@example.com\",\n      \"relation\": \"Father\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/students",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "students"]
+            }
+          }
+        },
+        {
+          "name": "Get All Staff",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/staff?page=1&limit=10&search=",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "staff"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create New Staff",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newstaff@example.com\",\n  \"password\": \"password123\",\n  \"profile\": {\n    \"firstName\": \"New\",\n    \"lastName\": \"Staff\",\n    \"phone\": \"1234567890\"\n  },\n  \"staffData\": {\n    \"staffId\": \"STF002\",\n    \"department\": \"Physics\",\n    \"designation\": \"Lecturer\",\n    \"joiningDate\": \"2024-01-15\",\n    \"qualification\": \"M.Sc Physics\",\n    \"experience\": 3,\n    \"subjects\": [\"Physics\", \"Mathematics\"],\n    \"salary\": {\n      \"basic\": 40000,\n      \"allowances\": 8000,\n      \"deductions\": 3000\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/staff",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "staff"]
+            }
+          }
+        },
+        {
+          "name": "Update User Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/:userId/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users", ":userId", "status"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USER_ID_HERE"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-save token from login responses",
+          "if (pm.response.json() && pm.response.json().token) {",
+          "    pm.collectionVariables.set('token', pm.response.json().token);",
+          "}"
+        ]
+      }
+    }
+  ]
+}
