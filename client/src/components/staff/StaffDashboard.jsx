@@ -17,22 +17,22 @@ import {
   Psychology,
   Chat
 } from '@mui/icons-material';
-import Layout from '../common/Layout';
-import StaffDashboardHome from './StaffDashboardHome';
-import StaffProfile from './StaffProfile';
-import StaffClasses from './StaffClasses';
-import StaffAttendance from './StaffAttendance';
-import StaffMarks from './StaffMarks';
-import StaffApprovals from './StaffApprovals';
-import StaffTimetable from './StaffTimetable';
-import StaffHomework from './StaffHomework';
-import StaffAchievements from './StaffAchievements';
-import StaffLibrary from './StaffLibrary';
-import StaffReports from './StaffReports';
-import StaffEvents from './StaffEvents';
-import StaffBehaviour from './StaffBehaviour';
-import StaffChat from './StaffChat';
-import StaffDetails from './StaffDetails';
+import Layout from '../common/Layout.jsx';
+import StaffDashboardHome from './StaffDashboardHome.jsx';
+import StaffProfile from './StaffProfile.jsx';
+import StaffClasses from './StaffClasses.jsx';
+import StaffAttendance from './StaffAttendance.jsx';
+import StaffMarks from './StaffMarks.jsx';
+import StaffApprovals from './StaffApprovals.jsx';
+import StaffTimetable from './StaffTimetable.jsx';
+import StaffHomework from './StaffHomework.jsx';
+import StaffAchievements from './StaffAchievements.jsx';
+import StaffLibrary from './StaffLibrary.jsx';
+import StaffReports from './StaffReports.jsx';
+import StaffEvents from './StaffEvents.jsx';
+import StaffBehaviour from './StaffBehaviour.jsx';
+import StaffChat from './StaffChat.jsx';
+import StaffDetails from './StaffDetails.jsx';
 
 const StaffDashboard = () => {
   const navigate = useNavigate();

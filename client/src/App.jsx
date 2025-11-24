@@ -4,21 +4,21 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import theme from './theme/theme';
 import { AuthProvider } from './contexts/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
 
 // Home Page
-import HomePage from './components/HomePage';
+import HomePage from './components/HomePage.jsx';
 
 // Auth Components
-import StudentLogin from './components/auth/StudentLogin';
-import StaffLogin from './components/auth/StaffLogin';
-import AdminLogin from './components/auth/AdminLogin';
-import ForgotPassword from './components/auth/ForgotPassword';
+import StudentLogin from './components/auth/StudentLogin.jsx';
+import StaffLogin from './components/auth/StaffLogin.jsx';
+import AdminLogin from './components/auth/AdminLogin.jsx';
+import ForgotPassword from './components/auth/ForgotPassword.jsx';
 
 // Panel Components
-import StudentDashboard from './components/student/StudentDashboard';
-import StaffDashboard from './components/staff/StaffDashboard';
-import AdminDashboard from './components/admin/AdminDashboard';
+import StudentDashboard from './components/student/StudentDashboard.jsx';
+import StaffDashboard from './components/staff/StaffDashboard.jsx';
+import AdminDashboard from './components/admin/AdminDashboard.jsx';
 
 const router = createBrowserRouter([
   {
