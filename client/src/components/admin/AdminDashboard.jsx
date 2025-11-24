@@ -20,24 +20,24 @@ import {
   Chat,
   Settings
 } from '@mui/icons-material';
-import Layout from '../common/Layout';
-import AdminDashboardHome from './AdminDashboardHome';
-import AdminStudents from './AdminStudents';
-import AdminStaff from './AdminStaff';
-import AdminAcademic from './AdminAcademic';
-import AdminExams from './AdminExams';
-import AdminHomework from './AdminHomework';
-import AdminFees from './AdminFees';
-import AdminLibrary from './AdminLibrary';
-import AdminHostel from './AdminHostel';
-import AdminEvents from './AdminEvents';
-import AdminBehaviour from './AdminBehaviour';
-import AdminPlacement from './AdminPlacement';
-import AdminMedical from './AdminMedical';
-import AdminFeedback from './AdminFeedback';
-import AdminChat from './AdminChat';
-import AdminSettings from './AdminSettings';
-import AdminAttendance from './AdminAttendance';
+import Layout from '../common/Layout.jsx';
+import AdminDashboardHome from './AdminDashboardHome.jsx';
+import AdminStudents from './AdminStudents.jsx';
+import AdminStaff from './AdminStaff.jsx';
+import AdminAcademic from './AdminAcademic.jsx';
+import AdminExams from './AdminExams.jsx';
+import AdminHomework from './AdminHomework.jsx';
+import AdminFees from './AdminFees.jsx';
+import AdminLibrary from './AdminLibrary.jsx';
+import AdminHostel from './AdminHostel.jsx';
+import AdminEvents from './AdminEvents.jsx';
+import AdminBehaviour from './AdminBehaviour.jsx';
+import AdminPlacement from './AdminPlacement.jsx';
+import AdminMedical from './AdminMedical.jsx';
+import AdminFeedback from './AdminFeedback.jsx';
+import AdminChat from './AdminChat.jsx';
+import AdminSettings from './AdminSettings.jsx';
+import AdminAttendance from './AdminAttendance.jsx';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();

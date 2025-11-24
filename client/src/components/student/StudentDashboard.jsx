@@ -20,26 +20,26 @@ import {
   Feedback,
   Chat
 } from '@mui/icons-material';
-import Layout from '../common/Layout';
-import StudentDashboardHome from './StudentDashboardHome';
-import StudentProfile from './StudentProfile';
-import StudentAttendance from './StudentAttendance';
-import StudentMarks from './StudentMarks';
-import StudentFees from './StudentFees';
-import StudentTimetable from './StudentTimetable';
-import StudentExams from './StudentExams';
-import StudentCafeteria from './StudentCafeteria';
-import StudentTransport from './StudentTransport';
-import StudentBadges from './StudentBadges';
-import StudentHostel from './StudentHostel';
-import StudentEvents from './StudentEvents';
-import StudentLibrary from './StudentLibrary';
-import StudentPlacement from './StudentPlacement';
-import StudentMedical from './StudentMedical';
-import StudentFeedback from './StudentFeedback';
-import StudentChat from './StudentChat';
-import StudentClassroom from './StudentClassroom';
-import StudentHomework from './StudentHomework';
+import Layout from '../common/Layout.jsx';
+import StudentDashboardHome from './StudentDashboardHome.jsx';
+import StudentProfile from './StudentProfile.jsx';
+import StudentAttendance from './StudentAttendance.jsx';
+import StudentMarks from './StudentMarks.jsx';
+import StudentFees from './StudentFees.jsx';
+import StudentTimetable from './StudentTimetable.jsx';
+import StudentExams from './StudentExams.jsx';
+import StudentCafeteria from './StudentCafeteria.jsx';
+import StudentTransport from './StudentTransport.jsx';
+import StudentBadges from './StudentBadges.jsx';
+import StudentHostel from './StudentHostel.jsx';
+import StudentEvents from './StudentEvents.jsx';
+import StudentLibrary from './StudentLibrary.jsx';
+import StudentPlacement from './StudentPlacement.jsx';
+import StudentMedical from './StudentMedical.jsx';
+import StudentFeedback from './StudentFeedback.jsx';
+import StudentChat from './StudentChat.jsx';
+import StudentClassroom from './StudentClassroom.jsx';
+import StudentHomework from './StudentHomework.jsx';
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
