@@ -217,8 +217,27 @@ const AdminAcademic = () => {
       if (dialogType === 'class') {
         const classData = {
           name: formData.className,
-          sections: formData.sections.split(',').map(s => s.trim())
+          sections: formData.sections.split(',').map(s => s.trim()).filter(s => s)
         };
+        
+        // Validate input
+        if (!classData.name.trim()) {
+          setSnackbar({
+            open: true,
+            message: 'Please enter a class name',
+            severity: 'error'
+          });
+          return;
+        }
+        
+        if (classData.sections.length === 0) {
+          setSnackbar({
+            open: true,
+            message: 'Please enter at least one section',
+            severity: 'error'
+          });
+          return;
+        }
         
         if (formData.editingId) {
           await academicService.updateClass(formData.editingId, classData);
@@ -232,6 +251,15 @@ const AdminAcademic = () => {
           class: formData.selectedClass,
           teacher: formData.teacher
         };
+        
+        if (!subjectData.name.trim() || !subjectData.code.trim() || !subjectData.class || !subjectData.teacher) {
+          setSnackbar({
+            open: true,
+            message: 'Please fill all required fields',
+            severity: 'error'
+          });
+          return;
+        }
         
         if (formData.editingId) {
           await academicService.updateSubject(formData.editingId, subjectData);
@@ -247,6 +275,15 @@ const AdminAcademic = () => {
           time: formData.time
         };
         
+        if (!timetableData.class || !timetableData.subject || !timetableData.teacher || !timetableData.day || !timetableData.time) {
+          setSnackbar({
+            open: true,
+            message: 'Please fill all required fields',
+            severity: 'error'
+          });
+          return;
+        }
+        
         if (formData.editingId) {
           await academicService.updateTimetableSlot(formData.editingId, timetableData);
         } else {
@@ -259,7 +296,7 @@ const AdminAcademic = () => {
       
       setSnackbar({
         open: true,
-        message: `${dialogType} saved successfully`,
+        message: `${dialogType.charAt(0).toUpperCase() + dialogType.slice(1)} saved successfully`,
         severity: 'success'
       });
       
@@ -276,9 +313,10 @@ const AdminAcademic = () => {
         editingId: null
       });
     } catch (error) {
+      console.error('Save error:', error);
       setSnackbar({
         open: true,
-        message: `Failed to save ${dialogType}`,
+        message: error.response?.data?.message || `Failed to save ${dialogType}`,
         severity: 'error'
       });
     }

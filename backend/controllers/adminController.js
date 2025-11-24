@@ -266,6 +266,98 @@ exports.updateUserStatus = async (req, res) => {
   }
 };
 
+exports.updateStudent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { email, password, profile, studentData } = req.body;
+
+    // Find the student
+    const student = await Student.findById(id).populate('userId');
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    // Update user profile
+    const updateData = { profile };
+    if (email) updateData.email = email;
+    if (password) updateData.password = password;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      student.userId._id,
+      updateData,
+      { new: true }
+    );
+
+    // Update student data
+    const updatedStudent = await Student.findByIdAndUpdate(
+      id,
+      studentData,
+      { new: true }
+    ).populate('userId', 'email profile isActive');
+
+    res.json({
+      success: true,
+      message: 'Student updated successfully',
+      data: updatedStudent
+    });
+  } catch (error) {
+    console.error('Update student error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.updateStudentAccess = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { access } = req.body;
+
+    const updatedStudent = await Student.findByIdAndUpdate(
+      id,
+      { access },
+      { new: true }
+    ).populate('userId', 'email profile isActive');
+
+    if (!updatedStudent) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Student access updated successfully',
+      data: updatedStudent
+    });
+  } catch (error) {
+    console.error('Update student access error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.deleteStudent = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the student
+    const student = await Student.findById(id);
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    // Delete associated user account
+    await User.findByIdAndDelete(student.userId);
+
+    // Delete the student record
+    await Student.findByIdAndDelete(id);
+
+    res.json({
+      success: true,
+      message: 'Student deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete student error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 // Events / Announcements
 exports.getEvents = async (req, res) => {
   try {
