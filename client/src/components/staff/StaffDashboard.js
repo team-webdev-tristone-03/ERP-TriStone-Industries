@@ -33,6 +33,7 @@ import StaffEvents from './StaffEvents';
 import StaffBehaviour from './StaffBehaviour';
 import StaffChat from './StaffChat';
 import StaffDetails from './StaffDetails';
+import StaffAssignments from './StaffAssignments';
 
 const StaffDashboard = () => {
   const navigate = useNavigate();
@@ -47,6 +48,7 @@ const StaffDashboard = () => {
     { text: 'Approvals', icon: <Approval />, path: '/staff/approvals' },
     { text: 'Timetable', icon: <Schedule />, path: '/staff/timetable' },
     { text: 'Homework', icon: <Assignment />, path: '/staff/homework' },
+    { text: 'Assignments', icon: <Assignment />, path: '/staff/assignments' },
     { text: 'Achievements', icon: <EmojiEvents />, path: '/staff/achievements' },
     { text: 'Library', icon: <LibraryBooks />, path: '/staff/library' },
     { text: 'Reports', icon: <Assessment />, path: '/staff/reports' },
@@ -73,6 +75,7 @@ const StaffDashboard = () => {
         <Route path="/approvals" element={<StaffApprovals />} />
         <Route path="/timetable" element={<StaffTimetable />} />
         <Route path="/homework" element={<StaffHomework />} />
+        <Route path="/assignments" element={<StaffAssignments />} />
         <Route path="/achievements" element={<StaffAchievements />} />
         <Route path="/library" element={<StaffLibrary />} />
         <Route path="/reports" element={<StaffReports />} />

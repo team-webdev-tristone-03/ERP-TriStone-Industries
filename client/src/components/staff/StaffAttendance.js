@@ -5,6 +5,13 @@ import {
   CardContent,
   Typography,
   Box,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Alert,
+  Snackbar,
   Table,
   TableBody,
   TableCell,
@@ -13,235 +20,192 @@ import {
   TableRow,
   Paper,
   Chip,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem
+  Avatar,
+  TextField,
+  Tabs,
+  Tab
 } from '@mui/material';
-import { CheckCircle, Cancel, Schedule } from '@mui/icons-material';
+import { 
+  CheckCircle, 
+  Cancel, 
+  AccessTime,
+  School,
+  Class,
+  Schedule,
+  Person,
+  History
+} from '@mui/icons-material';
 
 const StaffAttendance = () => {
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [tabValue, setTabValue] = useState(0);
+  const [checkInTime, setCheckInTime] = useState(null);
+  const [checkOutTime, setCheckOutTime] = useState(null);
+  const [selectedClass, setSelectedClass] = useState('');
+  const [selectedSection, setSelectedSection] = useState('');
+  const [selectedPeriod, setSelectedPeriod] = useState('');
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [students, setStudents] = useState([]);
+  const [showStudents, setShowStudents] = useState(false);
+  const [viewMode, setViewMode] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
-  // Mock attendance data
-  const attendanceRecords = [
-    { date: '2024-01-15', checkIn: '09:00', checkOut: '17:00', status: 'present' },
-    { date: '2024-01-16', checkIn: '09:15', checkOut: '17:00', status: 'late' },
-    { date: '2024-01-17', checkIn: '-', checkOut: '-', status: 'absent' },
-    { date: '2024-01-18', checkIn: '08:55', checkOut: '17:05', status: 'present' },
-    { date: '2024-01-19', checkIn: '09:00', checkOut: '17:00', status: 'present' }
+  // Jane Smith's assigned classes only
+  const assignedClasses = [
+    { class: '6th', section: 'B' },
+    { class: '7th', section: 'B' },
+    { class: '8th', section: 'B' }
   ];
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'present':
-        return 'success';
-      case 'absent':
-        return 'error';
-      case 'late':
-        return 'warning';
-      default:
-        return 'default';
-    }
-  };
+  const periods = ['1', '2', '3', '4', '5', '6'];
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'present':
-        return <CheckCircle />;
-      case 'absent':
-        return <Cancel />;
-      case 'late':
-        return <Schedule />;
-      default:
-        return null;
-    }
-  };
-
-  const calculateStats = () => {
-    const total = attendanceRecords.length;
-    const present = attendanceRecords.filter(record => record.status === 'present').length;
-    const absent = attendanceRecords.filter(record => record.status === 'absent').length;
-    const late = attendanceRecords.filter(record => record.status === 'late').length;
-    const percentage = total > 0 ? ((present + late) / total * 100).toFixed(1) : 0;
-
-    return { total, present, absent, late, percentage };
-  };
-
-  const stats = calculateStats();
-
-  const months = [
-    { value: 1, label: 'January' },
-    { value: 2, label: 'February' },
-    { value: 3, label: 'March' },
-    { value: 4, label: 'April' },
-    { value: 5, label: 'May' },
-    { value: 6, label: 'June' },
-    { value: 7, label: 'July' },
-    { value: 8, label: 'August' },
-    { value: 9, label: 'September' },
-    { value: 10, label: 'October' },
-    { value: 11, label: 'November' },
-    { value: 12, label: 'December' }
+  const mockStudents = [
+    { id: 1, name: 'John Smith', rollNumber: '001', fatherName: 'Robert Smith', motherName: 'Mary Smith', phone: '9876543210', status: null },
+    { id: 2, name: 'Emma Johnson', rollNumber: '002', fatherName: 'David Johnson', motherName: 'Lisa Johnson', phone: '9876543211', status: null },
+    { id: 3, name: 'Michael Brown', rollNumber: '003', fatherName: 'James Brown', motherName: 'Sarah Brown', phone: '9876543212', status: null },
+    { id: 4, name: 'Sophia Davis', rollNumber: '004', fatherName: 'William Davis', motherName: 'Jennifer Davis', phone: '9876543213', status: null },
+    { id: 5, name: 'Oliver Wilson', rollNumber: '005', fatherName: 'Thomas Wilson', motherName: 'Amanda Wilson', phone: '9876543214', status: null }
   ];
 
-  const years = [2023, 2024, 2025];
+  const mockPreviousAttendance = [
+    { id: 1, name: 'John Smith', rollNumber: '001', fatherName: 'Robert Smith', motherName: 'Mary Smith', phone: '9876543210', status: 'present' },
+    { id: 2, name: 'Emma Johnson', rollNumber: '002', fatherName: 'David Johnson', motherName: 'Lisa Johnson', phone: '9876543211', status: 'absent' },
+    { id: 3, name: 'Michael Brown', rollNumber: '003', fatherName: 'James Brown', motherName: 'Sarah Brown', phone: '9876543212', status: 'present' },
+    { id: 4, name: 'Sophia Davis', rollNumber: '004', fatherName: 'William Davis', motherName: 'Jennifer Davis', phone: '9876543213', status: 'present' },
+    { id: 5, name: 'Oliver Wilson', rollNumber: '005', fatherName: 'Thomas Wilson', motherName: 'Amanda Wilson', phone: '9876543214', status: 'absent' }
+  ];
+
+  const handleCheckIn = async () => {
+    const now = new Date();
+    setCheckInTime(now.toLocaleTimeString());
+    
+    const attendanceData = {
+      staffId: 'STF001',
+      date: now.toISOString().split('T')[0],
+      checkIn: now.toISOString(),
+      status: 'checked_in'
+    };
+    
+    // MongoDB API call would go here
+    console.log('MongoDB - Staff Check In:', attendanceData);
+    setSnackbar({ open: true, message: 'Checked in successfully!', severity: 'success' });
+  };
+
+  const handleCheckOut = async () => {
+    if (!checkInTime) {
+      setSnackbar({ open: true, message: 'Please check in first!', severity: 'error' });
+      return;
+    }
+    
+    const now = new Date();
+    setCheckOutTime(now.toLocaleTimeString());
+    
+    const attendanceData = {
+      staffId: 'STF001',
+      date: now.toISOString().split('T')[0],
+      checkOut: now.toISOString(),
+      status: 'checked_out'
+    };
+    
+    // MongoDB API call would go here
+    console.log('MongoDB - Staff Check Out:', attendanceData);
+    setSnackbar({ open: true, message: 'Checked out successfully!', severity: 'success' });
+  };
+
+  const handleSubmit = () => {
+    if (!selectedClass || !selectedSection || !selectedPeriod) {
+      setSnackbar({ open: true, message: 'Please select class, section, and period!', severity: 'error' });
+      return;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    const isToday = selectedDate === today;
+    
+    if (tabValue === 0) { // Mark Attendance
+      setStudents(mockStudents.map(student => ({ ...student, status: null })));
+      setViewMode(false);
+    } else { // View Previous
+      setStudents(mockPreviousAttendance);
+      setViewMode(true);
+    }
+    
+    setShowStudents(true);
+    const message = tabValue === 0 
+      ? `Students loaded for ${selectedClass}-${selectedSection} Period ${selectedPeriod}`
+      : `Previous attendance loaded for ${selectedDate}`;
+    setSnackbar({ open: true, message, severity: 'success' });
+  };
+
+  const markAttendance = (studentId, status) => {
+    if (viewMode) return; // Prevent editing in view mode
+    
+    setStudents(prev => prev.map(student => 
+      student.id === studentId ? { ...student, status } : student
+    ));
+
+    // MongoDB API call for individual student attendance
+    const attendanceRecord = {
+      studentId,
+      staffId: 'STF001',
+      class: selectedClass,
+      section: selectedSection,
+      period: selectedPeriod,
+      date: selectedDate,
+      status,
+      timestamp: new Date().toISOString()
+    };
+    
+    console.log('MongoDB - Student Attendance:', attendanceRecord);
+  };
+
+  const saveAttendance = () => {
+    if (viewMode) return;
+    
+    const attendanceData = {
+      staffId: 'STF001',
+      class: selectedClass,
+      section: selectedSection,
+      period: selectedPeriod,
+      date: selectedDate,
+      students: students.map(student => ({
+        studentId: student.id,
+        rollNumber: student.rollNumber,
+        status: student.status || 'absent'
+      })),
+      timestamp: new Date().toISOString()
+    };
+    
+    // MongoDB API call would go here
+    console.log('MongoDB - Save All Attendance:', attendanceData);
+    setSnackbar({ open: true, message: 'Attendance saved successfully!', severity: 'success' });
+  };
+
+  const getMaxDate = () => {
+    return new Date().toISOString().split('T')[0];
+  };
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        My Attendance
+    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
+      <Typography variant="h4" fontWeight="bold" gutterBottom>
+        Staff Attendance
       </Typography>
 
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <FormControl fullWidth>
-            <InputLabel>Month</InputLabel>
-            <Select
-              value={selectedMonth}
-              label="Month"
-              onChange={(e) => setSelectedMonth(e.target.value)}
-            >
-              {months.map((month) => (
-                <MenuItem key={month.value} value={month.value}>
-                  {month.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <FormControl fullWidth>
-            <InputLabel>Year</InputLabel>
-            <Select
-              value={selectedYear}
-              label="Year"
-              onChange={(e) => setSelectedYear(e.target.value)}
-            >
-              {years.map((year) => (
-                <MenuItem key={year} value={year}>
-                  {year}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
-      </Grid>
-
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Total Days
-              </Typography>
-              <Typography variant="h4">
-                {stats.total}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Present
-              </Typography>
-              <Typography variant="h4" color="success.main">
-                {stats.present}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Absent
-              </Typography>
-              <Typography variant="h4" color="error.main">
-                {stats.absent}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Attendance %
-              </Typography>
-              <Typography variant="h4" color={stats.percentage >= 90 ? 'success.main' : 'warning.main'}>
-                {stats.percentage}%
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Attendance Records
-              </Typography>
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Date</TableCell>
-                      <TableCell>Check In</TableCell>
-                      <TableCell>Check Out</TableCell>
-                      <TableCell>Working Hours</TableCell>
-                      <TableCell>Status</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {attendanceRecords.map((record, index) => {
-                      const workingHours = record.checkIn !== '-' && record.checkOut !== '-'
-                        ? '8:00'
-                        : '-';
-                      
-                      return (
-                        <TableRow key={index}>
-                          <TableCell>
-                            {new Date(record.date).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>{record.checkIn}</TableCell>
-                          <TableCell>{record.checkOut}</TableCell>
-                          <TableCell>{workingHours}</TableCell>
-                          <TableCell>
-                            <Chip
-                              icon={getStatusIcon(record.status)}
-                              label={record.status.toUpperCase()}
-                              color={getStatusColor(record.status)}
-                              size="small"
-                            />
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Quick Actions
-              </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      {/* Quick Actions */}
+      <Card sx={{ mb: 4 }}>
+        <CardContent>
+          <Typography variant="h6" fontWeight="bold" mb={3}>
+            Quick Actions
+          </Typography>
+          
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
                 <Button
                   variant="contained"
                   color="success"
                   startIcon={<CheckCircle />}
+                  onClick={handleCheckIn}
+                  disabled={checkInTime}
+                  sx={{ minWidth: 120 }}
                 >
                   Check In
                 </Button>
@@ -249,24 +213,238 @@ const StaffAttendance = () => {
                   variant="contained"
                   color="error"
                   startIcon={<Cancel />}
+                  onClick={handleCheckOut}
+                  disabled={!checkInTime || checkOutTime}
+                  sx={{ minWidth: 120 }}
                 >
                   Check Out
                 </Button>
-                <Button
-                  variant="outlined"
-                >
-                  Apply for Leave
-                </Button>
-                <Button
-                  variant="outlined"
-                >
-                  View Leave Balance
-                </Button>
               </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+              
+              {checkInTime && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                  <AccessTime color="success" />
+                  <Typography variant="body2">Checked in at: {checkInTime}</Typography>
+                </Box>
+              )}
+              
+              {checkOutTime && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <AccessTime color="error" />
+                  <Typography variant="body2">Checked out at: {checkOutTime}</Typography>
+                </Box>
+              )}
+            </Grid>
+            
+            <Grid item xs={12} md={6}>
+              <Typography variant="body1" color="textSecondary">
+                Today: {new Date().toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </Typography>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+
+      {/* Tabs for Mark/View Attendance */}
+      <Card sx={{ mb: 4 }}>
+        <CardContent>
+          <Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)} sx={{ mb: 3 }}>
+            <Tab label="Mark Attendance" />
+            <Tab label="View Previous Attendance" />
+          </Tabs>
+
+          {/* Date Selection for View Previous */}
+          {tabValue === 1 && (
+            <Box sx={{ mb: 3 }}>
+              <TextField
+                type="date"
+                label="Select Date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                inputProps={{ max: getMaxDate() }}
+                sx={{ mr: 2 }}
+              />
+            </Box>
+          )}
+          
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={3}>
+              <Card sx={{ p: 2, textAlign: 'center' }}>
+                <School color="primary" sx={{ fontSize: 40, mb: 1 }} />
+                <Typography variant="h6" mb={2}>Class</Typography>
+                <FormControl fullWidth>
+                  <InputLabel>Select Class</InputLabel>
+                  <Select
+                    value={selectedClass}
+                    label="Select Class"
+                    onChange={(e) => setSelectedClass(e.target.value)}
+                  >
+                    {assignedClasses.map((item, index) => (
+                      <MenuItem key={index} value={item.class}>{item.class}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Card>
+            </Grid>
+            
+            <Grid item xs={12} md={3}>
+              <Card sx={{ p: 2, textAlign: 'center' }}>
+                <Class color="secondary" sx={{ fontSize: 40, mb: 1 }} />
+                <Typography variant="h6" mb={2}>Section</Typography>
+                <FormControl fullWidth>
+                  <InputLabel>Select Section</InputLabel>
+                  <Select
+                    value={selectedSection}
+                    label="Select Section"
+                    onChange={(e) => setSelectedSection(e.target.value)}
+                  >
+                    {assignedClasses
+                      .filter(item => item.class === selectedClass)
+                      .map((item, index) => (
+                        <MenuItem key={index} value={item.section}>{item.section}</MenuItem>
+                      ))}
+                  </Select>
+                </FormControl>
+              </Card>
+            </Grid>
+            
+            <Grid item xs={12} md={3}>
+              <Card sx={{ p: 2, textAlign: 'center' }}>
+                <Schedule color="info" sx={{ fontSize: 40, mb: 1 }} />
+                <Typography variant="h6" mb={2}>Period</Typography>
+                <FormControl fullWidth>
+                  <InputLabel>Select Period</InputLabel>
+                  <Select
+                    value={selectedPeriod}
+                    label="Select Period"
+                    onChange={(e) => setSelectedPeriod(e.target.value)}
+                  >
+                    {periods.map((period) => (
+                      <MenuItem key={period} value={period}>Period {period}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Card>
+            </Grid>
+            
+            <Grid item xs={12} md={3}>
+              <Card sx={{ p: 2, textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={handleSubmit}
+                  sx={{ py: 2 }}
+                >
+                  {tabValue === 0 ? 'Load Students' : 'View Attendance'}
+                </Button>
+                {selectedClass && selectedSection && selectedPeriod && (
+                  <Typography variant="body2" color="textSecondary" mt={1}>
+                    {selectedClass}-{selectedSection} • Period {selectedPeriod}
+                  </Typography>
+                )}
+              </Card>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+
+      {/* Students List */}
+      {showStudents && (
+        <Card>
+          <CardContent>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+              <Typography variant="h6" fontWeight="bold">
+                {viewMode ? 'Previous Attendance' : 'Mark Attendance'} - {selectedClass}-{selectedSection} (Period {selectedPeriod})
+                {viewMode && <Chip label="View Only" color="info" size="small" sx={{ ml: 2 }} />}
+              </Typography>
+              {!viewMode && (
+                <Button variant="contained" onClick={saveAttendance}>
+                  Save Attendance
+                </Button>
+              )}
+            </Box>
+            
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Avatar</TableCell>
+                    <TableCell>Roll No.</TableCell>
+                    <TableCell>Student Name</TableCell>
+                    <TableCell>Father's Name</TableCell>
+                    <TableCell>Mother's Name</TableCell>
+                    <TableCell>Phone</TableCell>
+                    <TableCell>Status</TableCell>
+                    {!viewMode && <TableCell>Action</TableCell>}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {students.map((student) => (
+                    <TableRow key={student.id}>
+                      <TableCell>
+                        <Avatar>
+                          <Person />
+                        </Avatar>
+                      </TableCell>
+                      <TableCell>{student.rollNumber}</TableCell>
+                      <TableCell>{student.name}</TableCell>
+                      <TableCell>{student.fatherName}</TableCell>
+                      <TableCell>{student.motherName}</TableCell>
+                      <TableCell>{student.phone}</TableCell>
+                      <TableCell>
+                        {student.status && (
+                          <Chip
+                            label={student.status}
+                            color={student.status === 'present' ? 'success' : 'error'}
+                            size="small"
+                          />
+                        )}
+                      </TableCell>
+                      {!viewMode && (
+                        <TableCell>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Button
+                              variant={student.status === 'present' ? 'contained' : 'outlined'}
+                              color="success"
+                              size="small"
+                              onClick={() => markAttendance(student.id, 'present')}
+                            >
+                              Present
+                            </Button>
+                            <Button
+                              variant={student.status === 'absent' ? 'contained' : 'outlined'}
+                              color="error"
+                              size="small"
+                              onClick={() => markAttendance(student.id, 'absent')}
+                            >
+                              Absent
+                            </Button>
+                          </Box>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </CardContent>
+        </Card>
+      )}
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
