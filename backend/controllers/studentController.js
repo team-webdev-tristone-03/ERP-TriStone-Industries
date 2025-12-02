@@ -2,7 +2,10 @@ const Student = require('../models/Student');
 
 exports.getDashboard = async (req, res) => {
   try {
-    const student = await Student.findOne({ userId: req.user.id });
+    const student = await Student.findOne({ 
+      userId: req.user.id, 
+      organizationId: req.organizationId 
+    });
     if (!student) {
       return res.status(404).json({ message: 'Student not found' });
     }
@@ -32,7 +35,10 @@ exports.getDashboard = async (req, res) => {
 
 exports.getProfile = async (req, res) => {
   try {
-    const student = await Student.findOne({ userId: req.user.id }).populate('userId', 'name email');
+    const student = await Student.findOne({ 
+      userId: req.user.id, 
+      organizationId: req.organizationId 
+    }).populate('userId', 'name email');
     if (!student) {
       return res.status(404).json({ message: 'Student not found' });
     }

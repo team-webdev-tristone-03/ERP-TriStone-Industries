@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   AppBar,
   Box,
@@ -20,10 +20,14 @@ import {
 import {
   Menu as MenuIcon,
   AccountCircle,
-  Logout
+  Logout,
+  DarkMode,
+  LightMode
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useNavigate, useLocation } from 'react-router-dom';
+import '../../styles/scrollbar.css';
 
 const drawerWidth = 240;
 
@@ -31,8 +35,13 @@ const Layout = ({ children, menuItems, title }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const { user, logout } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+  }, [isDarkMode]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -88,7 +97,7 @@ const Layout = ({ children, menuItems, title }) => {
   );
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', overflowX: 'hidden' }}>
       <CssBaseline />
       <AppBar
         position="fixed"
@@ -110,6 +119,13 @@ const Layout = ({ children, menuItems, title }) => {
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             ERP System 
           </Typography>
+          <IconButton
+            color="inherit"
+            onClick={toggleTheme}
+            sx={{ mr: 1 }}
+          >
+            {isDarkMode ? <LightMode /> : <DarkMode />}
+          </IconButton>
           <div>
             <IconButton
               size="large"
@@ -164,7 +180,11 @@ const Layout = ({ children, menuItems, title }) => {
           }}
           sx={{
             display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': { 
+              boxSizing: 'border-box', 
+              width: drawerWidth,
+              overflowX: 'hidden'
+            },
           }}
         >
           {drawer}
@@ -173,7 +193,11 @@ const Layout = ({ children, menuItems, title }) => {
           variant="permanent"
           sx={{
             display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': { 
+              boxSizing: 'border-box', 
+              width: drawerWidth,
+              overflowX: 'hidden'
+            },
           }}
           open
         >
@@ -182,7 +206,18 @@ const Layout = ({ children, menuItems, title }) => {
       </Box>
       <Box
         component="main"
-        sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
+        sx={{ 
+          flexGrow: 1, 
+          p: 3, 
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          overflowX: 'hidden',
+          overflowY: 'auto',
+          minWidth: 0,
+          height: '100vh',
+          '&::-webkit-scrollbar': {
+            width: '8px'
+          }
+        }}
       >
         <Toolbar />
         {children}

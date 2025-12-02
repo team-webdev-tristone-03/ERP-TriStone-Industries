@@ -10,6 +10,9 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Card,
+  CardContent,
+  CardHeader,
   Chip,
   IconButton,
   TextField,
@@ -22,11 +25,12 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Pagination,
   CircularProgress,
   Alert,
   Tooltip,
-  FormHelperText
+  FormHelperText,
+  Collapse,
+  Badge
 } from '@mui/material';
 import {
   Add,
@@ -36,7 +40,11 @@ import {
   Search,
   Block,
   CheckCircle,
-  EditNote
+  EditNote,
+  ExpandMore,
+  ExpandLess,
+  School,
+  People
 } from '@mui/icons-material';
 import { adminService, academicService } from '../../services/authService';
 
@@ -47,10 +55,9 @@ const AdminStudents = () => {
   const [loadingClasses, setLoadingClasses] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [studentIdSearch, setStudentIdSearch] = useState('');
+  const [classSearchTerm, setClassSearchTerm] = useState('');
+  const [studentSearchTerms, setStudentSearchTerms] = useState({});
+  const [expandedClasses, setExpandedClasses] = useState({});
   const [openDialog, setOpenDialog] = useState(false);
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -105,8 +112,11 @@ const AdminStudents = () => {
   useEffect(() => {
     fetchStudents();
     fetchClasses();
-  }, [page]);
+  }, []);
 
+
+
+  
   // Fetch classes from backend
   const fetchClasses = async () => {
     try {
@@ -150,24 +160,15 @@ const AdminStudents = () => {
     }
   };
 
-  // Debounced search effect
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchTerm) {
-        setPage(1);
-      }
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
+
 
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const response = await adminService.getStudents(page, 10, '');
+      const response = await adminService.getStudents(1, 1000, '');
       const studentsData = response.data?.data?.students || [];
       setAllStudents(studentsData);
       setStudents(studentsData);
-      setTotalPages(response.data?.data?.totalPages || 1);
     } catch (err) {
       setError('Failed to load students');
       setStudents([]);
@@ -178,51 +179,96 @@ const AdminStudents = () => {
     }
   };
 
-  // Filter students based on search terms
-  const filteredStudents = useMemo(() => {
-    let filtered = allStudents;
+  // Get available sections for selected class
+  const getAvailableSections = useCallback((selectedClassName) => {
+    const selectedClass = classes.find(cls => cls.name === selectedClassName);
+    return selectedClass?.sections || ['A'];
+  }, [classes]);
+
+  // Group students by class and section
+  const groupedStudents = useMemo(() => {
+    const groups = {};
     
-    // Filter by Student ID if provided
-    if (studentIdSearch.trim()) {
-      const idTerm = studentIdSearch.toLowerCase();
-      filtered = filtered.filter(student => 
-        student.studentId?.toLowerCase().includes(idTerm)
-      );
+    allStudents.forEach(student => {
+      const className = student.class || 'Unassigned';
+      const section = student.section || 'A';
+      const classKey = `${className} - Section ${section}`;
+      
+      if (!groups[classKey]) {
+        groups[classKey] = {
+          className: className,
+          section: section,
+          displayName: classKey,
+          students: []
+        };
+      }
+      
+      groups[classKey].students.push(student);
+    });
+    
+    return groups;
+  }, [allStudents]);
+
+  // Filter classes based on search term
+  const filteredClasses = useMemo(() => {
+    if (!classSearchTerm.trim()) {
+      return groupedStudents;
     }
     
-    // Filter by general search term if provided
-    if (searchTerm.trim()) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(student => {
-        const firstName = student.userId?.profile?.firstName?.toLowerCase() || '';
-        const lastName = student.userId?.profile?.lastName?.toLowerCase() || '';
-        const fullName = `${firstName} ${lastName}`.trim();
-        const email = student.userId?.email?.toLowerCase() || '';
-        const className = student.class?.toLowerCase() || '';
-        const section = student.section?.toLowerCase() || '';
-        const course = student.academic?.course?.toLowerCase() || '';
-        
-        return firstName.includes(term) ||
-               lastName.includes(term) ||
-               fullName.includes(term) ||
-               email.includes(term) ||
-               className.includes(term) ||
-               section.includes(term) ||
-               course.includes(term);
-      });
-    }
+    const searchTerm = classSearchTerm.toLowerCase();
+    const filtered = {};
+    
+    Object.keys(groupedStudents).forEach(classKey => {
+      const classData = groupedStudents[classKey];
+      if (classData.displayName.toLowerCase().includes(searchTerm) ||
+          classData.className.toLowerCase().includes(searchTerm)) {
+        filtered[classKey] = classData;
+      }
+    });
     
     return filtered;
-  }, [allStudents, searchTerm, studentIdSearch]);
+  }, [groupedStudents, classSearchTerm]);
 
-  // Handle search input changes
-  const handleSearchChange = useCallback((event) => {
-    setSearchTerm(event.target.value);
+  // Handle class search
+  const handleClassSearchChange = useCallback((event) => {
+    setClassSearchTerm(event.target.value);
   }, []);
-  
-  const handleStudentIdSearchChange = useCallback((event) => {
-    setStudentIdSearch(event.target.value);
+
+  // Handle student search within each class
+  const handleStudentSearchChange = useCallback((classKey, searchTerm) => {
+    setStudentSearchTerms(prev => ({
+      ...prev,
+      [classKey]: searchTerm
+    }));
   }, []);
+
+  // Filter students within a class based on search term
+  const filterStudentsInClass = useCallback((students, searchTerm) => {
+    if (!searchTerm?.trim()) {
+      return students;
+    }
+    
+    const term = searchTerm.toLowerCase();
+    return students.filter(student => {
+      const firstName = student.userId?.profile?.firstName?.toLowerCase() || '';
+      const lastName = student.userId?.profile?.lastName?.toLowerCase() || '';
+      const fullName = `${firstName} ${lastName}`.trim();
+      const studentId = student.studentId?.toLowerCase() || '';
+      
+      return firstName.includes(term) ||
+             lastName.includes(term) ||
+             fullName.includes(term) ||
+             studentId.includes(term);
+    });
+  }, []);
+
+  // Toggle class expansion
+  const toggleClassExpansion = (classKey) => {
+    setExpandedClasses(prev => ({
+      ...prev,
+      [classKey]: !prev[classKey]
+    }));
+  };
 
   const handleCreateStudent = async () => {
     // Basic validation
@@ -517,166 +563,200 @@ const AdminStudents = () => {
 
   return (
     <Box>
+      {/* Header */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4">
           Student Management
         </Typography>
-        <Box display="flex" gap={1}>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={fetchClasses}
-            disabled={loadingClasses}
-          >
-            Refresh Classes
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<Add />}
-            onClick={() => {
-              setOpenDialog(true);
-              fetchClasses(); // Fetch classes when opening dialog
-            }}
-          >
-            Add Student
-          </Button>
-        </Box>
+        <Button
+          variant="contained"
+          startIcon={<Add />}
+          onClick={() => {
+            setOpenDialog(true);
+            fetchClasses();
+          }}
+        >
+          Add Student
+        </Button>
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-      <Box display="flex" gap={2} mb={3} flexWrap="wrap">
+      {/* Class Search Bar */}
+      <Box mb={3}>
         <TextField
-          placeholder="Search by Student ID..."
-          value={studentIdSearch}
-          onChange={handleStudentIdSearchChange}
+          placeholder="Search classes by name (e.g., 'Class 6', 'Class 10 A')..."
+          value={classSearchTerm}
+          onChange={handleClassSearchChange}
           InputProps={{
             startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />
           }}
-          sx={{ minWidth: 200 }}
+          sx={{ minWidth: 400 }}
           variant="outlined"
-          size="small"
-          label="Student ID Search"
-        />
-        <TextField
-          placeholder="Search by name, email, class, or course..."
-          value={searchTerm}
-          onChange={handleSearchChange}
-          InputProps={{
-            startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />
-          }}
-          sx={{ minWidth: 300 }}
-          variant="outlined"
-          size="small"
-          label="General Search"
+          size="medium"
+          label="Search Classes"
+          fullWidth
         />
       </Box>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Student ID</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Class</TableCell>
-              <TableCell>Course</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredStudents.map((student) => (
-              <TableRow key={student._id}>
-                <TableCell>{student.studentId}</TableCell>
-                <TableCell>
-                  {student.userId?.profile?.firstName} {student.userId?.profile?.lastName}
-                </TableCell>
-                <TableCell>{student.userId?.email}</TableCell>
-                <TableCell>{student.class} - {student.section}</TableCell>
-                <TableCell>{student.academic?.course}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={student.userId?.isActive ? 'Active' : 'Inactive'}
-                    color={student.userId?.isActive ? 'success' : 'error'}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Tooltip title="View Details">
-                    <IconButton 
-                      size="small" 
-                      color="primary"
-                      onClick={() => handleViewStudent(student)}
-                    >
-                      <Visibility />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Edit">
-                    <IconButton 
-                      size="small" 
-                      color="secondary"
-                      onClick={() => handleEditStudent(student)}
-                    >
-                      <Edit />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Edit Access">
-                    <IconButton 
-                      size="small" 
-                      color="info"
-                      onClick={() => handleEditAccess(student)}
-                    >
-                      <EditNote />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title={student.userId?.isActive ? 'Block Student' : 'Activate Student'}>
+      {/* Class Cards */}
+      <Grid container spacing={3}>
+        {Object.keys(filteredClasses).length === 0 ? (
+          <Grid item xs={12}>
+            <Paper sx={{ p: 4, textAlign: 'center' }}>
+              <School sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
+              <Typography variant="h6" color="textSecondary">
+                {classSearchTerm ? 'No classes found matching your search' : 'No students found'}
+              </Typography>
+            </Paper>
+          </Grid>
+        ) : (
+          Object.entries(filteredClasses).map(([classKey, classData]) => (
+            <Grid item xs={12} key={classKey}>
+              <Card sx={{ mb: 2 }}>
+                <CardHeader
+                  avatar={
+                    <Badge badgeContent={classData.students.length} color="primary">
+                      <People color="primary" />
+                    </Badge>
+                  }
+                  title={
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      {classData.displayName}
+                    </Typography>
+                  }
+                  subheader={`${classData.students.length} student${classData.students.length !== 1 ? 's' : ''}`}
+                  action={
                     <IconButton
-                      size="small"
-                      color={student.userId?.isActive ? 'error' : 'success'}
-                      onClick={() => handleStatusToggle(student.userId._id, student.userId.isActive)}
-                      disabled={isSubmitting}
+                      onClick={() => toggleClassExpansion(classKey)}
+                      sx={{ transform: expandedClasses[classKey] ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }}
                     >
-                      {student.userId?.isActive ? <Block /> : <CheckCircle />}
+                      <ExpandMore />
                     </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Delete">
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => handleDeleteStudent(student)}
-                      disabled={isSubmitting}
-                    >
-                      <Delete />
-                    </IconButton>
-                  </Tooltip>
-                </TableCell>
-              </TableRow>
-            ))}
-            {filteredStudents.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={7} align="center">
-                  <Typography color="textSecondary">
-                    {(searchTerm || studentIdSearch) ? 
-                      `No students found matching the search criteria` : 
-                      'No students found'
-                    }
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      <Box display="flex" justifyContent="center" mt={3}>
-        <Pagination
-          count={totalPages}
-          page={page}
-          onChange={(e, value) => setPage(value)}
-          color="primary"
-        />
-      </Box>
+                  }
+                  sx={{ cursor: 'pointer' }}
+                  onClick={() => toggleClassExpansion(classKey)}
+                />
+                
+                <Collapse in={expandedClasses[classKey]} timeout="auto" unmountOnExit>
+                  <CardContent sx={{ pt: 0 }}>
+                    {/* Student Search Bar for this class */}
+                    <Box mb={2}>
+                      <TextField
+                        placeholder="Search students by ID or name..."
+                        value={studentSearchTerms[classKey] || ''}
+                        onChange={(e) => handleStudentSearchChange(classKey, e.target.value)}
+                        InputProps={{
+                          startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />
+                        }}
+                        size="small"
+                        variant="outlined"
+                        fullWidth
+                        sx={{ maxWidth: 400 }}
+                      />
+                    </Box>
+                    
+                    <TableContainer>
+                      <Table size="small">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Student ID</TableCell>
+                            <TableCell>Name</TableCell>
+                            <TableCell>Email</TableCell>
+                            <TableCell>Course</TableCell>
+                            <TableCell>Status</TableCell>
+                            <TableCell>Actions</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {filterStudentsInClass(classData.students, studentSearchTerms[classKey]).map((student) => (
+                            <TableRow key={student._id} hover>
+                              <TableCell>{student.studentId}</TableCell>
+                              <TableCell>
+                                {student.userId?.profile?.firstName} {student.userId?.profile?.lastName}
+                              </TableCell>
+                              <TableCell>{student.userId?.email}</TableCell>
+                              <TableCell>{student.academic?.course}</TableCell>
+                              <TableCell>
+                                <Chip
+                                  label={student.userId?.isActive ? 'Active' : 'Inactive'}
+                                  color={student.userId?.isActive ? 'success' : 'error'}
+                                  size="small"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Tooltip title="View Details">
+                                  <IconButton 
+                                    size="small" 
+                                    color="primary"
+                                    onClick={() => handleViewStudent(student)}
+                                  >
+                                    <Visibility />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Edit">
+                                  <IconButton 
+                                    size="small" 
+                                    color="secondary"
+                                    onClick={() => handleEditStudent(student)}
+                                  >
+                                    <Edit />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Edit Access">
+                                  <IconButton 
+                                    size="small" 
+                                    color="info"
+                                    onClick={() => handleEditAccess(student)}
+                                  >
+                                    <EditNote />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title={student.userId?.isActive ? 'Block Student' : 'Activate Student'}>
+                                  <IconButton
+                                    size="small"
+                                    color={student.userId?.isActive ? 'error' : 'success'}
+                                    onClick={() => handleStatusToggle(student.userId._id, student.userId.isActive)}
+                                    disabled={isSubmitting}
+                                  >
+                                    {student.userId?.isActive ? <Block /> : <CheckCircle />}
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Delete">
+                                  <IconButton
+                                    size="small"
+                                    color="error"
+                                    onClick={() => handleDeleteStudent(student)}
+                                    disabled={isSubmitting}
+                                  >
+                                    <Delete />
+                                  </IconButton>
+                                </Tooltip>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                          {filterStudentsInClass(classData.students, studentSearchTerms[classKey]).length === 0 && (
+                            <TableRow>
+                              <TableCell colSpan={6} align="center">
+                                <Typography color="textSecondary">
+                                  {studentSearchTerms[classKey] ? 
+                                    `No students found matching "${studentSearchTerms[classKey]}"` : 
+                                    'No students in this class'
+                                  }
+                                </Typography>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </CardContent>
+                </Collapse>
+              </Card>
+            </Grid>
+          ))
+        )}
+      </Grid>
 
       {/* Add Student Dialog */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="md" fullWidth>
@@ -770,12 +850,32 @@ const AdminStudents = () => {
               </FormControl>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                label="Section"
-                fullWidth
-                value={formData.studentData.section}
-                onChange={(e) => handleInputChange('section', e.target.value, 'studentData')}
-              />
+              <FormControl fullWidth>
+                <InputLabel>Section</InputLabel>
+                <Select
+                  value={formData.studentData.section}
+                  onChange={(e) => handleInputChange('section', e.target.value, 'studentData')}
+                  label="Section"
+                  disabled={!formData.studentData.class}
+                >
+                  {formData.studentData.class ? (
+                    getAvailableSections(formData.studentData.class).map((section) => (
+                      <MenuItem key={section} value={section}>
+                        Section {section}
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem disabled value="">
+                      Select a class first
+                    </MenuItem>
+                  )}
+                </Select>
+                {!formData.studentData.class && (
+                  <FormHelperText>
+                    Please select a class to see available sections
+                  </FormHelperText>
+                )}
+              </FormControl>
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -1041,7 +1141,7 @@ const AdminStudents = () => {
                 >
                   {classes.length === 0 ? (
                     <MenuItem disabled value="">
-                      No classes created. Create classes in Admin &gt; Academic &gt; Classes
+                      No classes created. Create classes in Admin > Academic > Classes
                     </MenuItem>
                   ) : (
                     classes.map((cls) => (
@@ -1059,12 +1159,32 @@ const AdminStudents = () => {
               </FormControl>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                label="Section"
-                fullWidth
-                value={formData.studentData.section}
-                onChange={(e) => handleInputChange('section', e.target.value, 'studentData')}
-              />
+              <FormControl fullWidth>
+                <InputLabel>Section</InputLabel>
+                <Select
+                  value={formData.studentData.section}
+                  onChange={(e) => handleInputChange('section', e.target.value, 'studentData')}
+                  label="Section"
+                  disabled={!formData.studentData.class}
+                >
+                  {formData.studentData.class ? (
+                    getAvailableSections(formData.studentData.class).map((section) => (
+                      <MenuItem key={section} value={section}>
+                        Section {section}
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem disabled value="">
+                      Select a class first
+                    </MenuItem>
+                  )}
+                </Select>
+                {!formData.studentData.class && (
+                  <FormHelperText>
+                    Please select a class to see available sections
+                  </FormHelperText>
+                )}
+              </FormControl>
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField

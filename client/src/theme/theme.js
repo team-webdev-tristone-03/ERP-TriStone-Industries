@@ -1,6 +1,6 @@
 import { createTheme } from '@mui/material/styles';
 
-const theme = createTheme({
+export const createAppTheme = (isDarkMode) => createTheme({
   typography: {
     fontFamily: [
       'Inter',
@@ -61,45 +61,40 @@ const theme = createTheme({
     }
   },
   palette: {
+    mode: isDarkMode ? 'dark' : 'light',
     primary: {
-      main: '#3B86D1', // Blue - Top bar, main nav, active tab
+      main: '#3B86D1',
       contrastText: '#FFFFFF'
     },
     secondary: {
-      main: '#844FC1', // Purple - Selected state, badges
+      main: '#844FC1',
       contrastText: '#FFFFFF'
     },
     success: {
-      main: '#38CE3C', // Bright Green - Success alerts, paid fees
+      main: '#38CE3C',
       contrastText: '#FFFFFF'
     },
     error: {
-      main: '#FF4D6B', // Fiery Rose - Errors, warnings, overdue
+      main: '#FF4D6B',
       contrastText: '#FFFFFF'
     },
     warning: {
-      main: '#FF4D6B', // Fiery Rose - Warnings
+      main: '#FF9800',
       contrastText: '#FFFFFF'
     },
     info: {
-      main: '#8E32E9', // Electric Purple - Info badges, tooltips
+      main: '#8E32E9',
       contrastText: '#FFFFFF'
     },
     background: {
-      default: '#F8F9FA', // Light Gray - Main background
-      paper: '#FFFFFF' // White - Cards, modals
+      default: isDarkMode ? '#121212' : '#F8F9FA',
+      paper: isDarkMode ? '#1E1E1E' : '#FFFFFF'
     },
     text: {
-      primary: '#6C7293', // Soft Gray - Primary text
-      secondary: '#6C7293' // Soft Gray - Secondary text
+      primary: isDarkMode ? '#FFFFFF' : '#2C2C2C',
+      secondary: isDarkMode ? '#B3B3B3' : '#6C7293'
     },
-    grey: {
-      100: '#F8F9FA',
-      200: '#6C7293',
-      300: '#6C7293',
-      400: '#6C7293',
-      500: '#6C7293'
-    }
+    divider: isDarkMode ? '#333333' : '#E0E0E0'
   },
   components: {
     MuiAppBar: {
@@ -113,8 +108,8 @@ const theme = createTheme({
     MuiDrawer: {
       styleOverrides: {
         paper: {
-          backgroundColor: '#FFFFFF',
-          borderRight: '1px solid #F8F9FA'
+          backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
+          borderRight: `1px solid ${isDarkMode ? '#333333' : '#F8F9FA'}`
         }
       }
     },
@@ -140,8 +135,8 @@ const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          backgroundColor: '#FFFFFF',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
+          boxShadow: isDarkMode ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)'
         }
       }
     },
@@ -188,4 +183,5 @@ const theme = createTheme({
   }
 });
 
+const theme = createAppTheme(false); // Default light theme
 export default theme;

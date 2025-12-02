@@ -3,7 +3,10 @@ const { Timetable } = require('../models/Academic');
 
 exports.getDashboard = async (req, res) => {
   try {
-    const staff = await Staff.findOne({ userId: req.user.id });
+    const staff = await Staff.findOne({ 
+      userId: req.user.id, 
+      organizationId: req.organizationId 
+    });
     if (!staff) {
       return res.status(404).json({ message: 'Staff not found' });
     }
@@ -26,7 +29,10 @@ exports.getDashboard = async (req, res) => {
 
 exports.getProfile = async (req, res) => {
   try {
-    const staff = await Staff.findOne({ userId: req.user.id }).populate('userId', 'name email');
+    const staff = await Staff.findOne({ 
+      userId: req.user.id, 
+      organizationId: req.organizationId 
+    }).populate('userId', 'name email');
     if (!staff) {
       return res.status(404).json({ message: 'Staff not found' });
     }
@@ -41,7 +47,10 @@ exports.getStaffDetails = async (req, res) => {
   try {
     const { id } = req.params;
     
-    const staff = await Staff.findOne({ staffId: id }).populate('userId', 'profile');
+    const staff = await Staff.findOne({ 
+      staffId: id, 
+      organizationId: req.organizationId 
+    }).populate('userId', 'profile');
     if (!staff) {
       return res.status(404).json({ message: 'Staff not found' });
     }

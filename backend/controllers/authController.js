@@ -1,9 +1,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Organization = require('../models/Organization');
 
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
+const generateToken = (id, organizationId) => {
+  return jwt.sign({ id, organizationId }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
 };
 
 exports.login = async (req, res) => {
@@ -28,7 +29,7 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Account is deactivated' });
     }
 
-    const token = generateToken(user._id);
+    const token = generateToken(user._id, user.organizationId);
     
     res.json({
       success: true,

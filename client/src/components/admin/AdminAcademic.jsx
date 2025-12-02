@@ -340,6 +340,16 @@ const AdminAcademic = () => {
         teacher: item.teacher,
         editingId: item.id
       });
+    } else if (type === 'timetable') {
+      setFormData({
+        ...formData,
+        selectedClass: item.class,
+        subjectName: item.subject,
+        teacher: item.teacher,
+        day: item.day,
+        time: item.time,
+        editingId: item.id
+      });
     }
     setOpenDialog(true);
   };
@@ -703,7 +713,11 @@ const AdminAcademic = () => {
                   <TableCell>{slot.day}</TableCell>
                   <TableCell>{slot.time}</TableCell>
                   <TableCell>
-                    <IconButton size="small" color="primary">
+                    <IconButton 
+                      size="small" 
+                      color="primary"
+                      onClick={() => handleEdit('timetable', slot)}
+                    >
                       <Edit />
                     </IconButton>
                     <IconButton 
@@ -734,7 +748,7 @@ const AdminAcademic = () => {
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
         <DialogTitle>
           <Box display="flex" justifyContent="space-between" alignItems="center">
-            Add {dialogType}
+            {formData.editingId ? 'Edit' : 'Add'} {dialogType.charAt(0).toUpperCase() + dialogType.slice(1)}
             <IconButton onClick={() => setOpenDialog(false)}>
               <Close />
             </IconButton>
@@ -869,7 +883,9 @@ const AdminAcademic = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button onClick={handleSave} variant="contained">Save</Button>
+          <Button onClick={handleSave} variant="contained">
+            {formData.editingId ? 'Update' : 'Save'}
+          </Button>
         </DialogActions>
       </Dialog>
 

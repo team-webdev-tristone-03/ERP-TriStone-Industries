@@ -22,6 +22,7 @@ import {
 } from '@mui/icons-material';
 import Layout from '../common/Layout.jsx';
 import AdminDashboardHome from './AdminDashboardHome.jsx';
+import AdminProfile from './AdminProfile.jsx';
 import AdminStudents from './AdminStudents.jsx';
 import AdminStaff from './AdminStaff.jsx';
 import AdminAcademic from './AdminAcademic.jsx';
@@ -44,6 +45,7 @@ const AdminDashboard = () => {
 
   const menuItems = [
     { text: 'Dashboard', icon: <Dashboard />, path: '/admin/dashboard' },
+    { text: 'Profile', icon: <Person />, path: '/admin/profile' },
     { text: 'Student Management', icon: <People />, path: '/admin/students' },
     { text: 'Staff Management', icon: <Person />, path: '/admin/staff' },
     { text: 'Attendance Management', icon: <EventAvailable />, path: '/admin/attendance' },
@@ -72,6 +74,7 @@ const AdminDashboard = () => {
     <Layout menuItems={menuItems} title="Admin Portal">
       <Routes>
         <Route path="/dashboard" element={<AdminDashboardHome />} />
+        <Route path="/profile" element={<AdminProfile />} />
         <Route path="/students" element={<AdminStudents />} />
         <Route path="/staff" element={<AdminStaff />} />
         <Route path="/attendance" element={<AdminAttendance />} />
