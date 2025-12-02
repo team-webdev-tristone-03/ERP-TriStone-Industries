@@ -8,16 +8,23 @@ import {
   Typography,
   Box,
   Button,
-  Paper
+  Paper,
+  IconButton,
+  AppBar,
+  Toolbar
 } from '@mui/material';
 import {
   School,
   Person,
-  AdminPanelSettings
+  AdminPanelSettings,
+  DarkMode,
+  LightMode
 } from '@mui/icons-material';
+import { useTheme } from '../contexts/ThemeContext';
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const loginOptions = [
     {
@@ -44,8 +51,22 @@ const HomePage = () => {
   ];
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ py: 8 }}>
+    <>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            ERP System
+          </Typography>
+          <IconButton
+            color="inherit"
+            onClick={toggleTheme}
+          >
+            {isDarkMode ? <LightMode /> : <DarkMode />}
+          </IconButton>
+        </Toolbar>
+      </AppBar>
+      <Container maxWidth="lg">
+        <Box sx={{ py: 8 }}>
         {/* Header */}
         <Paper elevation={3} sx={{ p: 4, mb: 6, textAlign: 'center', background: 'linear-gradient(135deg, #3B86D1 0%, #844FC1 100%)' }}>
           <Typography variant="h2" component="h1" gutterBottom sx={{ color: 'white', fontWeight: 'bold' }}>
@@ -146,12 +167,21 @@ const HomePage = () => {
                   Email: admin_demo@erp.com<br />
                   Password: admin123
                 </Typography>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => navigate('/admin/signup')}
+                  sx={{ mt: 1, textTransform: 'none' }}
+                >
+                  Create New Organization
+                </Button>
               </Box>
             </Grid>
           </Grid>
         </Paper>
-      </Box>
-    </Container>
+        </Box>
+      </Container>
+    </>
   );
 };
 

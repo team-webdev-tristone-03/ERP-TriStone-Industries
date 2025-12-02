@@ -100,7 +100,12 @@ export const staffService = {
 };
 
 export const adminService = {
+  signup: (formData) => api.post('/admin/signup', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
   getDashboard: () => api.get('/admin/dashboard'),
+  getProfile: () => api.get('/admin/profile'),
+  updateProfile: (data) => api.put('/admin/profile', data),
   getStudents: (page, limit, search) => api.get(`/admin/students?page=${page}&limit=${limit}&search=${search}`),
   createStudent: (data) => api.post('/admin/students', data),
   updateStudent: (id, data) => api.put(`/admin/students/${id}`, data),

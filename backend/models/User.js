@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema({
     enum: ['student', 'staff', 'admin'],
     required: true
   },
+  organizationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Organization'
+  },
   profile: {
     firstName: String,
     lastName: String,

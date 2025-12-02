@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Organization = require('../models/Organization');
 
 const auth = async (req, res, next) => {
   try {
@@ -17,6 +18,7 @@ const auth = async (req, res, next) => {
     }
 
     req.user = user;
+    req.organizationId = decoded.organizationId || user.organizationId;
     next();
   } catch (error) {
     res.status(401).json({ message: 'Token is not valid' });

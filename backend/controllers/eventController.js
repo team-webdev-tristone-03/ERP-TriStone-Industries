@@ -3,7 +3,7 @@ const Event = require('../models/Event');
 // Get all events
 const getEvents = async (req, res) => {
   try {
-    const events = await Event.find().sort({ eventDate: 1 });
+    const events = await Event.find({ organizationId: req.organizationId }).sort({ eventDate: 1 });
     res.json({
       success: true,
       data: events
@@ -44,6 +44,7 @@ const createEvent = async (req, res) => {
     }
 
     const newEvent = new Event({
+      organizationId: req.organizationId,
       title,
       description,
       eventDate: new Date(eventDate),
@@ -95,8 +96,8 @@ const updateEvent = async (req, res) => {
       status
     } = req.body;
 
-    const updatedEvent = await Event.findByIdAndUpdate(
-      id,
+    const updatedEvent = await Event.findOneAndUpdate(
+      { _id: id, organizationId: req.organizationId },
       {
         title,
         description,
@@ -141,7 +142,7 @@ const deleteEvent = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const deletedEvent = await Event.findByIdAndDelete(id);
+    const deletedEvent = await Event.findOneAndDelete({ _id: id, organizationId: req.organizationId });
 
     if (!deletedEvent) {
       return res.status(404).json({
@@ -167,7 +168,7 @@ const deleteEvent = async (req, res) => {
 const getEventById = async (req, res) => {
   try {
     const { id } = req.params;
-    const event = await Event.findById(id);
+    const event = await Event.findOne({ _id: id, organizationId: req.organizationId });
 
     if (!event) {
       return res.status(404).json({
@@ -195,8 +196,8 @@ const updateEventStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    const updatedEvent = await Event.findByIdAndUpdate(
-      id,
+    const updatedEvent = await Event.findOneAndUpdate(
+      { _id: id, organizationId: req.organizationId },
       { status },
       { new: true }
     );

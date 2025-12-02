@@ -6,6 +6,11 @@ const staffSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  organizationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Organization',
+    required: true
+  },
   staffId: {
     type: String,
     required: true,

@@ -1,9 +1,10 @@
 import React from 'react';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
-import { ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import theme from './theme/theme';
+import { createAppTheme } from './theme/theme';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 
 // Home Page
@@ -13,6 +14,7 @@ import HomePage from './components/HomePage.jsx';
 import StudentLogin from './components/auth/StudentLogin.jsx';
 import StaffLogin from './components/auth/StaffLogin.jsx';
 import AdminLogin from './components/auth/AdminLogin.jsx';
+import AdminSignup from './components/auth/AdminSignup.jsx';
 import ForgotPassword from './components/auth/ForgotPassword.jsx';
 
 // Panel Components
@@ -36,6 +38,10 @@ const router = createBrowserRouter([
   {
     path: "/admin/login",
     element: <AdminLogin />
+  },
+  {
+    path: "/admin/signup",
+    element: <AdminSignup />
   },
   {
     path: "/forgot-password",
@@ -72,13 +78,24 @@ const router = createBrowserRouter([
   }
 });
 
-function App() {
+const AppContent = () => {
+  const { isDarkMode } = useTheme();
+  const theme = createAppTheme(isDarkMode);
+
   return (
-    <ThemeProvider theme={theme}>
+    <MuiThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
         <RouterProvider router={router} />
       </AuthProvider>
+    </MuiThemeProvider>
+  );
+};
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
     </ThemeProvider>
   );
 }

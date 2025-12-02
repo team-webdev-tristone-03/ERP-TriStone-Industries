@@ -1,10 +1,14 @@
 const mongoose = require('mongoose');
 
 const classSchema = new mongoose.Schema({
+  organizationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Organization',
+    required: true
+  },
   name: {
     type: String,
-    required: true,
-    unique: true
+    required: true
   },
   sections: [{
     type: String,
@@ -19,6 +23,11 @@ const classSchema = new mongoose.Schema({
 });
 
 const subjectSchema = new mongoose.Schema({
+  organizationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Organization',
+    required: true
+  },
   name: {
     type: String,
     required: true
@@ -45,6 +54,11 @@ const subjectSchema = new mongoose.Schema({
 });
 
 const timetableSchema = new mongoose.Schema({
+  organizationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Organization',
+    required: true
+  },
   class: {
     type: String,
     required: true
@@ -75,10 +89,14 @@ const timetableSchema = new mongoose.Schema({
 });
 
 const academicYearSchema = new mongoose.Schema({
+  organizationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Organization',
+    required: true
+  },
   year: {
     type: String,
-    required: true,
-    unique: true
+    required: true
   },
   startDate: {
     type: Date,

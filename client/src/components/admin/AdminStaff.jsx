@@ -156,7 +156,7 @@ const AdminStaff = () => {
       ...formData,
       staffData: {
         ...formData.staffData,
-        experience: formData.staffData.experience === '' ? undefined : Number(formData.staffData.experience) || 0,
+        experience: Number(formData.staffData.experience) || 0,
         salary: {
           basic: Number(formData.staffData.salary.basic) || 0,
           allowances: Number(formData.staffData.salary.allowances) || 0,
@@ -458,11 +458,20 @@ const AdminStaff = () => {
             <Grid item xs={12} sm={6}>
               <TextField
                 label="Experience (years)"
-                type="text"
-                inputProps={{ inputMode: 'numeric' }}
+                type="number"
                 fullWidth
                 value={formData.staffData.experience ?? ''}
-                onChange={(e) => handleInputChange('experience', e.target.value === '' ? '' : parseInt(e.target.value), 'staffData')}
+                onChange={(e) => handleInputChange('experience', e.target.value === '' ? 0 : parseInt(e.target.value) || 0, 'staffData')}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Joining Date"
+                type="date"
+                fullWidth
+                value={formData.staffData.joiningDate}
+                onChange={(e) => handleInputChange('joiningDate', e.target.value, 'staffData')}
+                InputLabelProps={{ shrink: true }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>

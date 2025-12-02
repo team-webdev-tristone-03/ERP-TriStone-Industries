@@ -2,6 +2,151 @@ const User = require('../models/User');
 const Student = require('../models/Student');
 const Staff = require('../models/Staff');
 const Event = require('../models/Event');
+const Organization = require('../models/Organization');
+const jwt = require('jsonwebtoken');
+
+exports.signup = async (req, res) => {
+  try {
+    console.log('Admin signup request received');
+    console.log('Request body:', req.body);
+    console.log('Request file:', req.file);
+    
+    const {
+      organizationName,
+      organizationType,
+      registrationNumber,
+      address,
+      contactEmail,
+      contactPhone,
+      website,
+      adminFullName,
+      adminEmail,
+      adminPhone,
+      password
+    } = req.body;
+
+    // Validate required fields
+    if (!organizationName || !organizationType || !contactEmail || !contactPhone || 
+        !adminFullName || !adminEmail || !adminPhone || !password) {
+      console.log('Missing required fields');
+      return res.status(400).json({ 
+        message: 'Please provide all required fields',
+        received: {
+          organizationName: !!organizationName,
+          organizationType: !!organizationType,
+          contactEmail: !!contactEmail,
+          contactPhone: !!contactPhone,
+          adminFullName: !!adminFullName,
+          adminEmail: !!adminEmail,
+          adminPhone: !!adminPhone,
+          password: !!password
+        }
+      });
+    }
+
+    // Check if admin email already exists
+    const existingUser = await User.findOne({ email: adminEmail });
+    if (existingUser) {
+      return res.status(400).json({ 
+        message: 'Admin email already exists' 
+      });
+    }
+
+    // Check if organization email already exists
+    const existingOrg = await Organization.findOne({ contactEmail });
+    if (existingOrg) {
+      return res.status(400).json({ 
+        message: 'Organization with this email already exists' 
+      });
+    }
+
+    // Parse address if it's a string
+    let parsedAddress = address;
+    if (typeof address === 'string') {
+      try {
+        parsedAddress = JSON.parse(address);
+      } catch (e) {
+        parsedAddress = { city: 'Not Specified', state: 'Not Specified' };
+      }
+    }
+    
+    // Ensure address has required fields
+    if (!parsedAddress || !parsedAddress.city || !parsedAddress.state) {
+      parsedAddress = {
+        ...parsedAddress,
+        city: parsedAddress?.city || 'Not Specified',
+        state: parsedAddress?.state || 'Not Specified'
+      };
+    }
+
+    // Create admin user
+    const adminUser = new User({
+      email: adminEmail,
+      password,
+      role: 'admin',
+      profile: {
+        firstName: adminFullName.split(' ')[0],
+        lastName: adminFullName.split(' ').slice(1).join(' '),
+        phone: adminPhone
+      },
+      isActive: true
+    });
+    await adminUser.save();
+    console.log('Admin user created:', adminUser._id);
+
+    // Create organization
+    const organization = new Organization({
+      name: organizationName,
+      type: organizationType,
+      registrationNumber,
+      address: parsedAddress,
+      contactEmail,
+      contactPhone,
+      website,
+      adminUser: adminUser._id,
+      isActive: true
+    });
+    await organization.save();
+    console.log('Organization created:', organization._id);
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        id: adminUser._id, 
+        role: adminUser.role,
+        organizationId: organization._id 
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRE || '7d' }
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'Organization and admin account created successfully',
+      data: {
+        token,
+        user: {
+          id: adminUser._id,
+          email: adminUser.email,
+          role: adminUser.role,
+          profile: adminUser.profile
+        },
+        organization: {
+          id: organization._id,
+          name: organization.name,
+          type: organization.type,
+          contactEmail: organization.contactEmail
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Admin signup error:', error);
+    res.status(500).json({ 
+      message: 'Server error during signup. Please try again.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
 
 exports.getDashboard = async (req, res) => {
   try {
@@ -212,6 +357,14 @@ exports.createStaff = async (req, res) => {
       return res.status(400).json({ message: 'User with this email already exists' });
     }
 
+    // Check if staff ID already exists
+    if (staffData.staffId) {
+      const existingStaff = await Staff.findOne({ staffId: staffData.staffId });
+      if (existingStaff) {
+        return res.status(400).json({ message: 'Staff ID already exists' });
+      }
+    }
+
     // Create user account
     const user = new User({
       email,
@@ -222,21 +375,36 @@ exports.createStaff = async (req, res) => {
     });
     await user.save();
 
+    // Get organization ID from user's token or default
+    let organizationId = req.user?.organizationId;
+    if (!organizationId) {
+      // Find any organization as fallback (for demo purposes)
+      const org = await Organization.findOne();
+      organizationId = org?._id;
+    }
+
     // Create staff record
     const staff = new Staff({
       ...staffData,
-      userId: user._id
+      userId: user._id,
+      organizationId: organizationId
     });
     await staff.save();
+
+    // Populate user data for response
+    const populatedStaff = await Staff.findById(staff._id).populate('userId', 'email profile isActive');
 
     res.status(201).json({
       success: true,
       message: 'Staff created successfully',
-      data: { staff, user: { email: user.email, profile: user.profile } }
+      data: populatedStaff
     });
   } catch (error) {
     console.error('Create staff error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ 
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
